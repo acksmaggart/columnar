@@ -1,0 +1,5 @@
+dev/
+*.pyc
+*.ipynb
+Columnar.egg-info/
+__pycache__/
