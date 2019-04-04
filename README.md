@@ -33,6 +33,15 @@ print(table)
 ```
 ![Table Displaying Spring Classics](https://github.com/MaxTaggart/columnar/raw/master/columnar/images/example_spring_classics.png)
 
+## Patterns
+Columnar supports patterns, which are two-item tuples each containing a regular expression and a function. The regular expression is applied to each item in `data` and when a pattern is found the corresponding function is applied to the text of that element. Only the first matching pattern is applied, meaning patterns can be prioritized by their order in the input array. This can be used to perform colorization, casing, or other custom tasks that will apply to the display of the text in the table.
+
+## Color Support
+As noted above, color may be applied to text by adding it to the text through a pattern. However, text may also be pre-colored by applying ANSI color codes to the text before it is passed to `columnar` as made easy by libraries like `click` and `colorama`. Note however, that any color that is applied will be applied to the contents of the whole cell. For example, if the text for a cell is 
+```python
+f"unmodified text {click.style('modified text', fg='blue')} more unmodified text"
+```
+the entire cell's text will be turned blue.
 
 ## Column Sizing Algorithm
 There are an infiniate number of ways to determine column sizing and text wrapping given a dataset. This package allows the user to specify a minimum column width, a maximum column width, and a "wrap max" which parameterized wrapping and column sizing. The rest of the logic that goes into determining how to fit data into a table when the data is wider than the terminal employs a pretty simple heuristic. First determine how wide each column wants to be without wrapping. If all the columns are too wide to fit on the screen, shrink as many columns as are needed in order for the table to fit, starting with the widest column and progressing through the columns from largest to smallest. If the size of columns falls below the minimum column width then raise an exception.
