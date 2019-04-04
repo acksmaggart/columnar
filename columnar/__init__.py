@@ -1,3 +1,3 @@
-from .main import Columnar
+from .columnar import Columnar
 
-table = Columnar()
+columnar = Columnar()
