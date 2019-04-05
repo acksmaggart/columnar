@@ -28,7 +28,7 @@ patterns = [
     ('Tour of Flanders', lambda text: style(text, fg='yellow')),
 ]
 
-table = columnar(data, headers=['Race', 'Date', 'Location', 'Distance'], transformation_patterns=patterns)
+table = columnar(data, headers=['Race', 'Date', 'Location', 'Distance'], patterns=patterns)
 print(table)
 ```
 ![Table Displaying Spring Classics](https://github.com/MaxTaggart/columnar/raw/master/columnar/images/example_spring_classics.png)

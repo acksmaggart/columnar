@@ -8,8 +8,8 @@ from collections import namedtuple
 
 class Columnar():
 
-    def __call__(self, data, headers, head=0, justify='left', wrap_max=5, max_column_width=0, 
-                min_column_width=5, row_sep='-', column_sep='|', transformation_patterns=[]):
+    def __call__(self, data, headers, head=0, justify='l', wrap_max=5, max_column_width=None, 
+                min_column_width=5, row_sep='-', column_sep='|', patterns=[]):
         self.wrap_max = wrap_max
         self.max_column_width = max_column_width
         self.min_column_width = min_column_width
@@ -18,7 +18,7 @@ class Columnar():
         self.terminal_width = os.get_terminal_size().columns
         self.row_sep = row_sep
         self.column_sep = column_sep
-        self.transformation_patterns = self.compile_transformation_patterns(transformation_patterns)
+        self.patterns = self.compile_patterns(patterns)
         self.ansi_color_pattern = re.compile(r"\x1b\[.+?m")
         self.color_reset = "\x1b[0m"
         self.color_grid = None
@@ -29,9 +29,9 @@ class Columnar():
         truncated_rows = self.wrap_and_truncate_logical_cells(logical_rows, column_widths)
         
         justification_map = {
-            'left': lambda text, width: text.ljust(width),
-            'center': lambda text, width: text.center(width),
-            'right': lambda text, width: text.rjust(width)
+            'l': lambda text, width: text.ljust(width),
+            'c': lambda text, width: text.center(width),
+            'r': lambda text, width: text.rjust(width)
         }
         justifications = []
         if type(justify) is str:
@@ -61,7 +61,7 @@ class Columnar():
         out_stream.write(self.column_sep + self.column_sep.join(cells) + self.column_sep + '\n')
 
 
-    def compile_transformation_patterns(self, patterns):
+    def compile_patterns(self, patterns):
         out = []
         for regex, func in patterns:
             if regex is not re.Pattern:
@@ -103,7 +103,7 @@ class Columnar():
 
     def apply_patterns(self, cell_text):
         out_text = cell_text
-        for pattern, func in self.transformation_patterns:
+        for pattern, func in self.patterns:
             if pattern.match(cell_text):
                 out_text = func(cell_text)
                 break
@@ -148,10 +148,18 @@ class Columnar():
         for column in zip(*reduce(operator.add, logical_rows)):
             lengths = [len(cell) for cell in column]
             max_natural = max(lengths)
-            max_width = max_natural if self.max_column_width == 0 else min(max_natural, self.max_column_width)
+            max_width = max_natural if self.max_column_width == None else min(max_natural, self.max_column_width)
             max_widths.append(max_width)
 
         columns = sorted([{'column_no' : no, 'width': width} for no, width in enumerate(max_widths)], key=lambda x: x['width'], reverse=True)
+        # apply min and max widths
+        for column in columns: 
+            if column['width'] < self.min_column_width: 
+                column['width'] = self.min_column_width
+            if self.max_column_width:
+                if column['width'] > self.max_column_width:
+                    column['width'] = self.max_column_width
+            
         if self.current_table_width(columns) <= self.terminal_width:
             return self.widths_sorted_by(columns, 'column_no')
 
