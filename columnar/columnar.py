@@ -89,10 +89,11 @@ class Columnar():
             cells_varying_lengths = []
             color_row = []
             for cell in row:
+                cell=str(cell)
                 cell = self.apply_patterns(cell)
                 cell, color = self.strip_color(cell)
                 color_row.append(color)
-                lines = str(cell).split('\n')
+                lines = cell.split('\n')
                 cells_varying_lengths.append(lines)
             cells = [[cell_text or '' for cell_text in physical_row] for physical_row in zip_longest(*cells_varying_lengths)]
             logical_rows.append(cells)
