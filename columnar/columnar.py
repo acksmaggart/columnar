@@ -6,10 +6,12 @@ from functools import reduce
 from itertools import zip_longest
 from collections import namedtuple
 
+from toolz import frequencies
+
 class Columnar():
 
     def __call__(self, data, headers, head=0, justify='l', wrap_max=5, max_column_width=None, 
-                min_column_width=5, row_sep='-', column_sep='|', patterns=[]):
+                min_column_width=5, row_sep='-', column_sep='|', patterns=[], drop=[]):
         self.wrap_max = wrap_max
         self.max_column_width = max_column_width
         self.min_column_width = min_column_width
@@ -22,8 +24,12 @@ class Columnar():
         self.ansi_color_pattern = re.compile(r"\x1b\[.+?m")
         self.color_reset = "\x1b[0m"
         self.color_grid = None
+        self.drop = drop
         
 
+        data = self.clean_data(data)
+        if self.drop:
+            data, headers = self.drop_columns(data, headers)
         logical_rows = self.convert_data_to_logical_rows([headers] + data)
         column_widths = self.get_column_widths(logical_rows)
         truncated_rows = self.wrap_and_truncate_logical_cells(logical_rows, column_widths)
@@ -75,6 +81,33 @@ class Columnar():
             return text
         return ''.join([code, text, self.color_reset])
 
+    def clean_data(self, data):
+        carriage_return = re.compile('\r')
+        out = []
+        for row in data:
+            cleaned = []
+            for cell in row:
+                cell = str(cell)
+                cell = carriage_return.sub('', cell)
+                cleaned.append(cell)
+            out.append(cleaned)
+        return out
+
+    def drop_columns(self, data, headers):
+        drop = set(self.drop)
+        headers_out = []
+        columns_out = []
+        for header, column in zip(headers, zip(*data)):
+            freqs = frequencies(column)
+            if not set(freqs.keys()).issubset(drop):
+                headers_out.append(header)
+                columns_out.append(column)
+        rows_out = list(zip(*columns_out))
+        return rows_out, headers_out
+
+
+
+
 
     def convert_data_to_logical_rows(self, full_data):
         """
@@ -89,7 +122,6 @@ class Columnar():
             cells_varying_lengths = []
             color_row = []
             for cell in row:
-                cell=str(cell)
                 cell = self.apply_patterns(cell)
                 cell, color = self.strip_color(cell)
                 color_row.append(color)
