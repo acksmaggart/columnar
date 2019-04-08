@@ -83,12 +83,14 @@ class Columnar():
 
     def clean_data(self, data):
         carriage_return = re.compile('\r')
+        tab = re.compile('\t')
         out = []
         for row in data:
             cleaned = []
             for cell in row:
                 cell = str(cell)
                 cell = carriage_return.sub('', cell)
+                cell = tab.sub(' ' * 4, cell)
                 cleaned.append(cell)
             out.append(cleaned)
         return out
