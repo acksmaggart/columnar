@@ -52,7 +52,7 @@ table = columnar(data, headers, no_borders=True)
 print(table)
 ```
 
-[Table Displaying No-border Style](https://github.com/MaxTaggart/columnar/raw/master/columnar/images/example_no_borders.png)
+![Table Displaying No-border Style](https://github.com/MaxTaggart/columnar/raw/master/columnar/images/example_no_borders.png)
 
 
 ## Patterns

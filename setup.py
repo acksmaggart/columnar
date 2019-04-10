@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="Columnar",
-    version="0.3.0",
+    version="0.3.1",
     author="Max Taggart",
     author_email="max.taggart@gmail.com",
     description="A tool for printing data in a columnar format.",
