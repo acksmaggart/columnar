@@ -33,6 +33,27 @@ print(table)
 ```
 ![Table Displaying Spring Classics](https://github.com/MaxTaggart/columnar/raw/master/columnar/images/example_spring_classics.png)
 
+Or for that fresh Docker look:
+
+```python
+from columnar import columnar
+
+headers = ['name', 'id', 'host', 'notes']
+
+data = [
+    ['busybox', 'c3c37d5d-38d2-409f-8d02-600fd9d51239', 'linuxnode-1-292735', 'Test server.'],
+    ['alpine-python', '6bb77855-0fda-45a9-b553-e19e1a795f1e', 'linuxnode-2-249253', 'The one that runs python.'],
+    ['redis', 'afb648ba-ac97-4fb2-8953-9a5b5f39663e', 'linuxnode-3-3416918', 'For queues and stuff.'],
+    ['app-server', 'b866cd0f-bf80-40c7-84e3-c40891ec68f9', 'linuxnode-4-295918', 'A popular destination.'],
+    ['nginx', '76fea0f0-aa53-4911-b7e4-fae28c2e469b', 'linuxnode-5-292735', 'Traffic Cop'],
+]
+
+table = columnar(data, headers, no_borders=True)
+print(table)
+```
+
+[Table Displaying No-border Style](https://github.com/MaxTaggart/columnar/raw/master/columnar/images/example_no_borders.png)
+
 
 ## Patterns
 Columnar supports patterns, which are two-item tuples each containing a regular expression and a function. The regular expression is applied to each item in `data` using `re.search()` and if there is a match the corresponding function is applied to the text of that element. Only the first matching pattern is applied, meaning patterns can be prioritized by their order in the input array. This can be used to perform colorization, casing, or other custom tasks that will affect the display of the text in the table.
@@ -44,6 +65,28 @@ As noted above, color may be applied to text by adding it to the text through a 
 f"unmodified text {click.style('modified text', fg='blue')} more unmodified text"
 ```
 the entire cell's text will be turned blue.
+
+
+## Selecting Columns
+If your table has a large number of columns, or you wish to highlight a subset of the columns use the `select` keyword argument. It takes a list of strings which are compiled to regular expressions using `re.compile(arg, re.I)` and used to select columns using `pattern.search(column_name)`. For example, given the following columns
+
+```
+['Name', 'BirthDate', 'Zip Code', 'City Code', 'County Code']
+```
+
+using `select=['name', '.*code']` will select all columns except the `BirthDate` column.
+
+## Dropping Columns
+It is often the case that one or more columns of the data will not be useful. For example, columns where all the values are "Null" or "-". To filter out these columns use the `drop` keyword argument. This argument takes a list of values and drops any column whose contents are a subset of those values. For example, given four columns
+
+```
+a   NA  1   -
+b   NA  2   Null
+-   NA  3   -
+d   NA  4   None
+```
+
+using `drop=['-', 'Null', 'NA', 'None']` will drop the second and fourth columns, even though the first column contains a dash also.
 
 
 ## Column Sizing Algorithm

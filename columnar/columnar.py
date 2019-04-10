@@ -11,7 +11,8 @@ from toolz import frequencies
 class Columnar():
 
     def __call__(self, data, headers, head=0, justify='l', wrap_max=5, max_column_width=None, 
-                min_column_width=5, row_sep='-', column_sep='|', patterns=[], drop=[]):
+                min_column_width=5, row_sep='-', column_sep='|', patterns=[], drop=[], select=[],
+                no_borders=False):
         self.wrap_max = wrap_max
         self.max_column_width = max_column_width
         self.min_column_width = min_column_width
@@ -20,16 +21,23 @@ class Columnar():
         self.terminal_width = os.get_terminal_size().columns
         self.row_sep = row_sep
         self.column_sep = column_sep
+        self.header_sep = '='
         self.patterns = self.compile_patterns(patterns)
         self.ansi_color_pattern = re.compile(r"\x1b\[.+?m")
         self.color_reset = "\x1b[0m"
         self.color_grid = None
         self.drop = drop
-        
+        self.select = select
+        self.no_borders = no_borders
+
+        if self.no_borders:
+            self.column_sep = ' ' * 2
+            self.row_sep = ''
+            self.header_sep = ''
+            headers = [text.upper() for text in headers]
 
         data = self.clean_data(data)
-        if self.drop:
-            data, headers = self.drop_columns(data, headers)
+        data, headers = self.filter_columns(data, headers)
         logical_rows = self.convert_data_to_logical_rows([headers] + data)
         column_widths = self.get_column_widths(logical_rows)
         truncated_rows = self.wrap_and_truncate_logical_cells(logical_rows, column_widths)
@@ -55,10 +63,11 @@ class Columnar():
                 colorized_row_parts = [self.colorize(text, code) for text, code in zip(justified_row_parts, color_row)]
                 out.write(self.column_sep + self.column_sep.join(colorized_row_parts) + self.column_sep + '\n')
             if header:
-                out.write(self.column_sep + ('=' * (table_width - 2)) + self.column_sep + '\n')
+                out.write(self.column_sep + (self.header_sep * (table_width - (len(self.column_sep * 2)))) + self.column_sep + '\n')
                 header = False
             else:
-                self.write_row_separators(out, column_widths)
+                if not self.no_borders:
+                    self.write_row_separators(out, column_widths)
         return out.getvalue()
 
 
@@ -95,20 +104,29 @@ class Columnar():
             out.append(cleaned)
         return out
 
-    def drop_columns(self, data, headers):
+    def filter_columns(self, data, headers):
+        """
+        Drop columns that meet drop criteria, unless they have been
+        explicitly selected.
+        """
         drop = set(self.drop)
+        select_patterns = [re.compile(pattern, re.I) for pattern in self.select]
+        select = len(select_patterns) > 0
         headers_out = []
         columns_out = []
         for header, column in zip(headers, zip(*data)):
-            freqs = frequencies(column)
-            if not set(freqs.keys()).issubset(drop):
-                headers_out.append(header)
-                columns_out.append(column)
+            if select:
+                for pattern in select_patterns:
+                    if pattern.search(header):
+                        headers_out.append(header)
+                        columns_out.append(column)  
+            else:
+                freqs = frequencies(column)
+                if not set(freqs.keys()).issubset(drop):
+                    headers_out.append(header)
+                    columns_out.append(column)
         rows_out = list(zip(*columns_out))
         return rows_out, headers_out
-
-
-
 
 
     def convert_data_to_logical_rows(self, full_data):

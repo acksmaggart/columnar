@@ -33,6 +33,7 @@ table = columnar(data,
     headers=['Race', 'Date', 'Location', 'Distance'], 
     patterns=patterns,
     justify=['l', 'r', 'c', 'l'],
-    min_column_width=55
+    min_column_width=55,
+    no_borders=True
 )
 print(table)
