@@ -94,4 +94,4 @@ There are an infinite number of ways to determine column sizing and text wrappin
 
 
 ## Text Wrapping
-The contents of a column are wrapped as needed to fit in the column with no effort made to split on spaces. The maximum number of times the contents of a column are wrapped before being truncated is given by `wrap_max`. Another way to think about `wrap_max` is that `wrap_max + 1` is the maximum number of rows a single cell can occupy. Any content past the `wrap_max + 1`th row is truncated.
+The contents of a column are wrapped as needed to fit in the column with no effort made to split on spaces. However, new-line characters are preserved and tab characters are replaced with four spaces. The maximum number of times the contents of a column are wrapped before being truncated is given by `wrap_max`. Another way to think about `wrap_max` is that `wrap_max + 1` is the maximum number of rows a single cell can occupy. Any content past the `wrap_max + 1`th row is truncated.
