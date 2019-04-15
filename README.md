@@ -7,7 +7,7 @@ A library for creating columnar output strings using data as input.
 pip install columnar
 ```
 
-## Example
+## Examples
 ```python
 from columnar import columnar
 from click import style
@@ -55,7 +55,7 @@ print(table)
 ![Table Displaying No-border Style](https://github.com/MaxTaggart/columnar/raw/master/columnar/images/example_no_borders.png)
 
 
-## Patterns
+### Patterns
 Columnar supports patterns, which are two-item tuples each containing a regular expression and a function. The regular expression is applied to each item in `data` using `re.search()` and if there is a match the corresponding function is applied to the text of that element. Only the first matching pattern is applied, meaning patterns can be prioritized by their order in the input array. This can be used to perform colorization, casing, or other custom tasks that will affect the display of the text in the table.
 
 
@@ -90,8 +90,79 @@ using `drop=['-', 'Null', 'NA', 'None']` will drop the second and fourth columns
 
 
 ## Column Sizing Algorithm
-There are an infinite number of ways to determine column sizing and text wrapping given a dataset. This package allows the user to specify a minimum column width, a maximum column width, and a "wrap max" which partially define wrapping and column sizing. The rest of the logic that goes into determining how to fit data into a table when the data is wider than the terminal employs a pretty simple heuristic. First determine how wide each column wants to be without wrapping. If all the columns are too wide to fit on the screen, shrink as many columns as are needed in order for the table to fit, starting with the widest column and progressing through the columns from largest to smallest. If the size of the columns falls below the minimum column width then raise an exception. This should only happen if there are so many columns that `terminal_width / num_columns` is less than the minimum column width.
+There are an infinite number of ways to determine column sizing and text wrapping given a dataset. This package allows the user to specify a minimum column width, a maximum column width, and a "wrap max" which partially define wrapping and column sizing. The rest of the logic that goes into determining how to fit data into a table when the data is wider than the terminal employs a pretty simple heuristic. First determine how wide each column wants to be without wrapping. If all the columns are too wide to fit on the screen, shrink as many columns as are needed in order for the table to fit, starting with the widest column and progressing through the columns from largest to smallest. If the size of the columns falls below the minimum column width then raise an exception, specifically a `columnar.exceptions.TableOverflowError`. This should only happen if there are so many columns that `terminal_width / num_columns` is less than the minimum column width.
 
 
 ## Text Wrapping
 The contents of a column are wrapped as needed to fit in the column with no effort made to split on spaces. However, new-line characters are preserved and tab characters are replaced with four spaces. The maximum number of times the contents of a column are wrapped before being truncated is given by `wrap_max`. Another way to think about `wrap_max` is that `wrap_max + 1` is the maximum number of rows a single cell can occupy. Any content past the `wrap_max + 1`th row is truncated.
+
+
+# API
+
+## `columnar()` Arguments
+
+### `data`
+An iterable of iterables, typically a list of lists of strings where each string will occupy its own cell in the table. However, list elements need not be strings. No matter what is passed, each element in the list is converted to a string using `str()`.
+***
+
+### `headers`
+A list of strings, one for each column in `data`, which will be displayed as the table headers.
+***
+
+### `patterns=[]`
+As explained above, patterns accepts a list of two-item tuples which can be used to transform the input `data` in order to perform tasks like text coloring, capitalization, or other formatting.
+***
+
+### `drop=[]`
+As explained above, drop takes a list of strings and if any column contains only elements in that list the column and its corresponding header will be exluded from the table. Can be used to exclude columns where all the values are "Null", or "-", etc. If an empty list is passed (default) then no columns are dropped.
+***
+
+### `select=[]`
+Accepts a list of string that are compiled to regular expressions usin the case insensitive, `re.I`, flag. Any column that matches any of these regular expressions is kept while all other columns are dropped. If `select` is specified `drop` is ignored, meaning that it is possible to display columns that may have been dropped by `drop` by spedifying them in `select`. Passing an empty list (default) causes all columns not dropped by `drop` to be displayed.
+***
+
+### `no_borders=False`
+Accepts a boolean value that specifies whether or not to display the borders between rows and columns. Passing `True` will hide all the borders and convert the headers to all caps for a more minimalistic look.
+***
+
+### `head=0`
+Similar to the unix bash command, displays only `head` number of rows of data. For example 
+```python
+columnar(data, headers, head=4)
+``` 
+will display the first four rows of data. Passing `0` (default) will display all the data.
+***
+
+### `justify='l'`
+Specifies how each column should be justified. Justification options are either `l`, `c`, or `r` for left, center, and right justification respectively.
+
+This argument accepts either a single value, or a list with `len(list) == num_columns`. If a single value is specified the justification for all columns will be set to that value. Otherwise, if a list is supplied, values will be applied to each column individually. For exmaple
+```python
+columnar(data, headers=['one', 'two', 'three'], justify='c')
+```
+will center all three columns, while
+```python
+columnar(data, headers=['one', 'two', 'three'], justify=['r', 'c', 'l'])
+```
+will right-justify column 'one', center column 'two', and left-justify column 'three'.
+***
+
+### `wrap_max=5`
+Sets the maximum number of times a line will wrap inside its cell. Another way to think of this is that `wrap_max + 1` is the maximum number of lines that a cell can occupy. New-line characters in the input are preserved, meaning that they count against the value of `wrap_max`.
+***
+
+### `max_column_width=None`
+Sets the maximum width for a column, causing the contents to wrap if they contain more characters than `max_column_width`. Setting this value to `None` (default) will only cause text to be wrapped if the whole table is too wide to fit on the screen causing the column-sizing algorithm to kick in.
+***
+
+### `min_column_wdith=5`
+Sets the minimum width of a column, adding whitespace to either the left side, right side, or both sides depending on the value of `justify`. Note that if `min_column_width` is too high the table may not fit on the screen and a `columnar.exceptions.TableOverflowError` will be thrown.
+***
+
+### `row_sep='-'`
+Specifies the character, or string, used to draw borders between the rows.
+***
+
+### `column_sep='|'`
+Specifies the character, or string, used to draw borders between the columns.
+***

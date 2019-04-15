@@ -8,6 +8,8 @@ from collections import namedtuple
 
 from toolz import frequencies
 
+from .exceptions import TableOverflowError
+
 class Columnar():
 
     def __call__(self, data, headers, head=0, justify='l', wrap_max=5, max_column_width=None, 
@@ -228,7 +230,7 @@ class Columnar():
             elif columns[0]['width'] >= self.min_column_width and self.current_table_width(columns) <= self.terminal_width:
                 return self.widths_sorted_by(columns, 'column_no')
                 
-        raise ValueError("Could not fit table in current terminal, try reducing the number of columns.")
+        raise TableOverflowError("Could not fit table in current terminal, try reducing the number of columns.")
 
             
         
