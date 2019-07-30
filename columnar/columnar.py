@@ -1,4 +1,5 @@
 import os
+import shutil
 import re
 import io
 import operator
@@ -20,7 +21,7 @@ class Columnar():
         self.min_column_width = min_column_width
         self.justify = justify
         self.head = head
-        self.terminal_width = os.get_terminal_size().columns
+        self.terminal_width = shutil.get_terminal_size().columns
         self.row_sep = row_sep
         self.column_sep = column_sep
         self.header_sep = '='
