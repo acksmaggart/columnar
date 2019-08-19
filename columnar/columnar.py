@@ -10,17 +10,18 @@ from toolz import frequencies
 
 from .exceptions import TableOverflowError
 
+
 class Columnar():
 
-    def __call__(self, data, headers, head=0, justify='l', wrap_max=5, max_column_width=None, 
-                min_column_width=5, row_sep='-', column_sep='|', patterns=[], drop=[], select=[],
-                no_borders=False):
+    def __call__(self, data, headers, head=0, justify='l', wrap_max=5, max_column_width=None,
+                 min_column_width=5, row_sep='-', column_sep='|', patterns=[], drop=[], select=[],
+                 no_borders=False, terminal_width=os.get_terminal_size().columns):
         self.wrap_max = wrap_max
         self.max_column_width = max_column_width
         self.min_column_width = min_column_width
         self.justify = justify
         self.head = head
-        self.terminal_width = os.get_terminal_size().columns
+        self.terminal_width = terminal_width
         self.row_sep = row_sep
         self.column_sep = column_sep
         self.header_sep = '='
@@ -43,7 +44,7 @@ class Columnar():
         logical_rows = self.convert_data_to_logical_rows([headers] + data)
         column_widths = self.get_column_widths(logical_rows)
         truncated_rows = self.wrap_and_truncate_logical_cells(logical_rows, column_widths)
-        
+
         justification_map = {
             'l': lambda text, width: text.ljust(width),
             'c': lambda text, width: text.center(width),
@@ -61,22 +62,22 @@ class Columnar():
         self.write_row_separators(out, column_widths)
         for lrow, color_row in zip(truncated_rows, self.color_grid):
             for row in lrow:
-                justified_row_parts = [justifier(text, width) for text, justifier, width in zip(row, justifications, column_widths)]
+                justified_row_parts = [justifier(text, width) for text, justifier, width in
+                                       zip(row, justifications, column_widths)]
                 colorized_row_parts = [self.colorize(text, code) for text, code in zip(justified_row_parts, color_row)]
                 out.write(self.column_sep + self.column_sep.join(colorized_row_parts) + self.column_sep + '\n')
             if header:
-                out.write(self.column_sep + (self.header_sep * (table_width - (len(self.column_sep * 2)))) + self.column_sep + '\n')
+                out.write(self.column_sep + (
+                        self.header_sep * (table_width - (len(self.column_sep * 2)))) + self.column_sep + '\n')
                 header = False
             else:
                 if not self.no_borders:
                     self.write_row_separators(out, column_widths)
         return out.getvalue()
 
-
     def write_row_separators(self, out_stream, column_widths):
         cells = [self.row_sep * width for width in column_widths]
         out_stream.write(self.column_sep + self.column_sep.join(cells) + self.column_sep + '\n')
-
 
     def compile_patterns(self, patterns):
         out = []
@@ -85,7 +86,6 @@ class Columnar():
                 regex = re.compile(regex)
             out.append((regex, func))
         return out
-
 
     def colorize(self, text, code):
         if code == None:
@@ -121,7 +121,7 @@ class Columnar():
                 for pattern in select_patterns:
                     if pattern.search(header):
                         headers_out.append(header)
-                        columns_out.append(column)  
+                        columns_out.append(column)
             else:
                 freqs = frequencies(column)
                 if not set(freqs.keys()).issubset(drop):
@@ -129,7 +129,6 @@ class Columnar():
                     columns_out.append(column)
         rows_out = list(zip(*columns_out))
         return rows_out, headers_out
-
 
     def convert_data_to_logical_rows(self, full_data):
         """
@@ -149,12 +148,12 @@ class Columnar():
                 color_row.append(color)
                 lines = cell.split('\n')
                 cells_varying_lengths.append(lines)
-            cells = [[cell_text or '' for cell_text in physical_row] for physical_row in zip_longest(*cells_varying_lengths)]
+            cells = [[cell_text or '' for cell_text in physical_row] for physical_row in
+                     zip_longest(*cells_varying_lengths)]
             logical_rows.append(cells)
             color_grid.append(color_row)
         self.color_grid = color_grid
         return logical_rows
-
 
     def apply_patterns(self, cell_text):
         out_text = cell_text
@@ -173,23 +172,19 @@ class Columnar():
             color_codes = ''.join([match.group(0) for match in matches[:-1]])
         return clean_text, color_codes
 
-
     def distribute_between(self, diff, columns, n):
         subset = columns[:n]
         width = sum([column['width'] for column in subset])
-        remainder = width - diff 
+        remainder = width - diff
         new_width = remainder // n
         for i in range(n): columns[i]['width'] = new_width
         return columns
 
-
     def widths_sorted_by(self, columns, key):
         return [column['width'] for column in sorted(columns, key=lambda x: x[key])]
 
-
     def current_table_width(self, columns):
         return sum([len(self.column_sep) + column['width'] for column in columns]) + len(self.column_sep)
-
 
     def get_column_widths(self, logical_rows):
         """
@@ -206,20 +201,21 @@ class Columnar():
             max_width = max_natural if self.max_column_width == None else min(max_natural, self.max_column_width)
             max_widths.append(max_width)
 
-        columns = sorted([{'column_no' : no, 'width': width} for no, width in enumerate(max_widths)], key=lambda x: x['width'], reverse=True)
+        columns = sorted([{'column_no': no, 'width': width} for no, width in enumerate(max_widths)],
+                         key=lambda x: x['width'], reverse=True)
         # apply min and max widths
-        for column in columns: 
-            if column['width'] < self.min_column_width: 
+        for column in columns:
+            if column['width'] < self.min_column_width:
                 column['width'] = self.min_column_width
             if self.max_column_width:
                 if column['width'] > self.max_column_width:
                     column['width'] = self.max_column_width
-            
+
         if self.current_table_width(columns) <= self.terminal_width:
             return self.widths_sorted_by(columns, 'column_no')
 
         # the table needs to be narrowed
-        for i in range(len(columns)): 
+        for i in range(len(columns)):
             # include the next largest column in the size reduction
             diff = self.current_table_width(columns) - self.terminal_width
             columns = self.distribute_between(diff, columns, i + 1)
@@ -227,13 +223,12 @@ class Columnar():
                 # if the columns that were just shrunk are smaller than the next largest column,
                 # keep distributing the size so we have evenly-shrunken columns
                 continue
-            elif columns[0]['width'] >= self.min_column_width and self.current_table_width(columns) <= self.terminal_width:
+            elif columns[0]['width'] >= self.min_column_width and self.current_table_width(
+                    columns) <= self.terminal_width:
                 return self.widths_sorted_by(columns, 'column_no')
-                
+
         raise TableOverflowError("Could not fit table in current terminal, try reducing the number of columns.")
 
-            
-        
     def wrap_and_truncate_logical_cells(self, logical_rows, column_widths):
         lrows_out = []
         for lrow in logical_rows:
