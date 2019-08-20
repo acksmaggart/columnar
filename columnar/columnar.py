@@ -1,4 +1,4 @@
-import os
+import shutil
 import re
 import io
 import operator
@@ -15,7 +15,7 @@ class Columnar():
 
     def __call__(self, data, headers, head=0, justify='l', wrap_max=5, max_column_width=None,
                  min_column_width=5, row_sep='-', column_sep='|', patterns=[], drop=[], select=[],
-                 no_borders=False, terminal_width=os.get_terminal_size().columns):
+                 no_borders=False, terminal_width=shutil.get_terminal_size().columns):
         self.wrap_max = wrap_max
         self.max_column_width = max_column_width
         self.min_column_width = min_column_width
@@ -192,7 +192,6 @@ class Columnar():
         the number of columns, and the column seperators that will be used
         to delimit columns.
         """
-        # terminal_width = os.get_terminal_size().columns
 
         max_widths = []
         for column in zip(*reduce(operator.add, logical_rows)):
