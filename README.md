@@ -114,11 +114,11 @@ As explained above, patterns accepts a list of two-item tuples which can be used
 ***
 
 ### `drop=[]`
-As explained above, drop takes a list of strings and if any column contains only elements in that list the column and its corresponding header will be exluded from the table. Can be used to exclude columns where all the values are "Null", or "-", etc. If an empty list is passed (default) then no columns are dropped.
+As explained above, drop takes a list of strings and if any column contains only elements in that list the column and its corresponding header will be excluded from the table. Can be used to exclude columns where all the values are "Null", or "-", etc. If an empty list is passed (default) then no columns are dropped.
 ***
 
 ### `select=[]`
-Accepts a list of string that are compiled to regular expressions usin the case insensitive, `re.I`, flag. Any column that matches any of these regular expressions is kept while all other columns are dropped. If `select` is specified `drop` is ignored, meaning that it is possible to display columns that may have been dropped by `drop` by spedifying them in `select`. Passing an empty list (default) causes all columns not dropped by `drop` to be displayed.
+Accepts a list of string that are compiled to regular expressions using the case insensitive, `re.I`, flag. Any column that matches any of these regular expressions is kept while all other columns are dropped. If `select` is specified `drop` is ignored, meaning that it is possible to display columns that may have been dropped by `drop` by specifying them in `select`. Passing an empty list (default) causes all columns not dropped by `drop` to be displayed.
 ***
 
 ### `no_borders=False`
@@ -155,7 +155,7 @@ Sets the maximum number of times a line will wrap inside its cell. Another way t
 Sets the maximum width for a column, causing the contents to wrap if they contain more characters than `max_column_width`. Setting this value to `None` (default) will only cause text to be wrapped if the whole table is too wide to fit on the screen causing the column-sizing algorithm to kick in.
 ***
 
-### `min_column_wdith=5`
+### `min_column_width=5`
 Sets the minimum width of a column, adding whitespace to either the left side, right side, or both sides depending on the value of `justify`. Note that if `min_column_width` is too high the table may not fit on the screen and a `columnar.exceptions.TableOverflowError` will be thrown.
 ***
 
