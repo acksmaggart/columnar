@@ -13,7 +13,7 @@ from .exceptions import TableOverflowError
 
 class Columnar():
 
-    def __call__(self, data, headers, head=0, justify='l', wrap_max=5, max_column_width=None,
+    def __call__(self, data, headers=None, no_headers=False, head=0, justify='l', wrap_max=5, max_column_width=None,
                  min_column_width=5, row_sep='-', column_sep='|', patterns=[], drop=[], select=[],
                  no_borders=False, terminal_width=shutil.get_terminal_size().columns):
         self.wrap_max = wrap_max
@@ -32,6 +32,10 @@ class Columnar():
         self.drop = drop
         self.select = select
         self.no_borders = no_borders
+        self.no_headers = no_headers
+
+        if self.no_headers:
+            headers = ["" for d in data[0]]
 
         if self.no_borders:
             self.column_sep = ' ' * 2
@@ -41,7 +45,10 @@ class Columnar():
 
         data = self.clean_data(data)
         data, headers = self.filter_columns(data, headers)
-        logical_rows = self.convert_data_to_logical_rows([headers] + data)
+        if self.no_headers:
+            logical_rows = self.convert_data_to_logical_rows(data)
+        else:
+            logical_rows = self.convert_data_to_logical_rows([headers] + data)
         column_widths = self.get_column_widths(logical_rows)
         truncated_rows = self.wrap_and_truncate_logical_cells(logical_rows, column_widths)
 
@@ -58,7 +65,9 @@ class Columnar():
 
         table_width = sum(column_widths) + ((len(column_widths) + 1) * len(row_sep))
         out = io.StringIO()
-        header = True
+        header = False
+        if not self.no_headers:
+            header = True
         self.write_row_separators(out, column_widths)
         for lrow, color_row in zip(truncated_rows, self.color_grid):
             for row in lrow:
