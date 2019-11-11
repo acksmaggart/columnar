@@ -3,3 +3,7 @@ dev/
 *.ipynb
 Columnar.egg-info/
 __pycache__/
+.DS_Store
+.vscode/
+build/
+dist/
