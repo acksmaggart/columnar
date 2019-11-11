@@ -17,5 +17,5 @@ patterns = [
     ('Tour of Flanders', lambda text: style(text, fg='yellow')),
 ]
 
-table = columnar(data, no_headers=True, patterns=patterns)
+table = columnar(data, patterns=patterns)
 print(table)
