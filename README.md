@@ -105,8 +105,8 @@ The contents of a column are wrapped as needed to fit in the column with no effo
 An iterable of iterables, typically a list of lists of strings where each string will occupy its own cell in the table. However, list elements need not be strings. No matter what is passed, each element in the list is converted to a string using `str()`.
 ***
 
-### `headers`
-A list of strings, one for each column in `data`, which will be displayed as the table headers.
+### `headers=None`
+A list of strings, one for each column in `data`, which will be displayed as the table headers. If left as `None` this will produce a table that does not have a header row.
 ***
 
 ### `patterns=[]`
@@ -167,5 +167,5 @@ Specifies the character, or string, used to draw borders between the rows.
 Specifies the character, or string, used to draw borders between the columns.
 ***
 
-### `terminal_width=shutil.get_terminal_size().columns`
-Specifies the width of the output display for cases when the default, `shutil.get_terminal_size().columns`, does not give a desirable result.
+### `terminal_width=None`
+Specifies the width of the output display. If left as `None` the width will default to `shutil.get_terminal_size().columns`. However, for cases where the default does not give a desirable result the display width can be specified here.
