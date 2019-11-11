@@ -13,15 +13,29 @@ from .exceptions import TableOverflowError
 
 class Columnar():
 
-    def __call__(self, data, headers, head=0, justify='l', wrap_max=5, max_column_width=None,
-                 min_column_width=5, row_sep='-', column_sep='|', patterns=[], drop=[], select=[],
-                 no_borders=False, terminal_width=shutil.get_terminal_size().columns):
+    def __call__(
+        self, 
+        data, 
+        headers=None, 
+        head=0, 
+        justify='l', 
+        wrap_max=5, 
+        max_column_width=None,
+        min_column_width=5, 
+        row_sep='-', 
+        column_sep='|', 
+        patterns=[], 
+        drop=[], 
+        select=[],
+        no_borders=False, 
+        terminal_width=None
+    ):
         self.wrap_max = wrap_max
         self.max_column_width = max_column_width
         self.min_column_width = min_column_width
         self.justify = justify
         self.head = head
-        self.terminal_width = terminal_width
+        self.terminal_width = terminal_width if terminal_width is not None else shutil.get_terminal_size().columns
         self.row_sep = row_sep
         self.column_sep = column_sep
         self.header_sep = '='
@@ -32,6 +46,10 @@ class Columnar():
         self.drop = drop
         self.select = select
         self.no_borders = no_borders
+        self.no_headers = headers is None
+
+        if self.no_headers:
+            headers = [""] * len(data[0])
 
         if self.no_borders:
             self.column_sep = ' ' * 2
@@ -41,7 +59,10 @@ class Columnar():
 
         data = self.clean_data(data)
         data, headers = self.filter_columns(data, headers)
-        logical_rows = self.convert_data_to_logical_rows([headers] + data)
+        if self.no_headers:
+            logical_rows = self.convert_data_to_logical_rows(data)
+        else:
+            logical_rows = self.convert_data_to_logical_rows([headers] + data)
         column_widths = self.get_column_widths(logical_rows)
         truncated_rows = self.wrap_and_truncate_logical_cells(logical_rows, column_widths)
 
@@ -58,7 +79,7 @@ class Columnar():
 
         table_width = sum(column_widths) + ((len(column_widths) + 1) * len(row_sep))
         out = io.StringIO()
-        header = True
+        write_header = True if not self.no_headers else False
         self.write_row_separators(out, column_widths)
         for lrow, color_row in zip(truncated_rows, self.color_grid):
             for row in lrow:
@@ -66,10 +87,10 @@ class Columnar():
                                        zip(row, justifications, column_widths)]
                 colorized_row_parts = [self.colorize(text, code) for text, code in zip(justified_row_parts, color_row)]
                 out.write(self.column_sep + self.column_sep.join(colorized_row_parts) + self.column_sep + '\n')
-            if header:
+            if write_header:
                 out.write(self.column_sep + (
                         self.header_sep * (table_width - (len(self.column_sep * 2)))) + self.column_sep + '\n')
-                header = False
+                write_header = False
             else:
                 if not self.no_borders:
                     self.write_row_separators(out, column_widths)
