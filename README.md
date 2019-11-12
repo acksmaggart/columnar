@@ -54,6 +54,22 @@ print(table)
 
 ![Table Displaying No-border Style](https://github.com/MaxTaggart/columnar/raw/master/columnar/images/example_no_borders.png)
 
+Columnar also supports emojis and characters that take up two display columns (assuming your display knows what to do with them):
+
+``` python
+from columnar import columnar
+
+headers = ["User", "Message", "Zip"]
+data = [
+    ['Yiying Lu', 'Fried Dumplings!!!! Yum! 😍😍😍', 47130],
+    ['Jennifer Lee', 'Facebook banned the 🍑, can you believe it?', 97153],
+    ['Premier12', '本日のヒーロー🦸周東選手✨　#周東佑京　#侍ジャパン #プレミア12 #AUSP12 #Premier12', 549726]
+]
+table = columnar(data, headers)
+print(table)
+```
+
+![Table with Emojis and Wide Characters](https://github.com/MaxTaggart/columnar/raw/master/columnar/images/emojis_and_wide_chars.png)
 
 ### Patterns
 Columnar supports patterns, which are two-item tuples each containing a regular expression and a function. The regular expression is applied to each item in `data` using `re.search()` and if there is a match the corresponding function is applied to the text of that element. Only the first matching pattern is applied, meaning patterns can be prioritized by their order in the input array. This can be used to perform colorization, casing, or other custom tasks that will affect the display of the text in the table.
