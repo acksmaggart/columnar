@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2019 Max Taggart
+#
+# SPDX-License-Identifier: MIT
+
 import setuptools
 
 with open("README.md", "r") as fh:

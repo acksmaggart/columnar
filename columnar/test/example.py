@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2019 Max Taggart
+#
+# SPDX-License-Identifier: MIT
+
 from columnar import columnar
 
 headers = ["User", "Message", "Zip"]

@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2019 Max Taggart
+
+SPDX-License-Identifier: MIT
+-->
+
 # Columnar
 
 A library for creating columnar output strings using data as input.
