@@ -65,6 +65,7 @@ class Columnar:
         self.select = select
         self.no_borders = no_borders
         self.no_headers = headers is None
+        data = self.clean_data(data)
 
         if self.no_headers:
             headers = [""] * len(data[0])
@@ -76,7 +77,6 @@ class Columnar:
             if not preformatted_headers:
                 headers = [text.upper() for text in headers]
 
-        data = self.clean_data(data)
         data, headers = self.filter_columns(data, headers)
         if self.no_headers:
             logical_rows = self.convert_data_to_logical_rows(data)
@@ -158,6 +158,8 @@ class Columnar:
         # First make sure data is a list of lists
         if type(data) is not list:
             raise TypeError(f"'data' must be a list of lists. Got a {type(data)}")
+        if len(data) == 0:
+            raise TypeError(f"'data' must be a list of lists. Got an empty list")
         if type(data[0]) is not list:
             raise TypeError(f"'data' must be a list of lists. Got a list of {type(data[0])}")
         # Make sure all the lists are the same length
