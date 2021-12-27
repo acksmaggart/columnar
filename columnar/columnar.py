@@ -31,7 +31,7 @@ class Columnar:
         data: Sequence[Sequence[Any]],
         headers: Union[None, Sequence[Any]] = None,
         head: int = 0,
-        justify: str = "l",
+        justify: Union[str, List[str]] = "l",
         wrap_max: int = 5,
         max_column_width: Union[None, int] = None,
         min_column_width: int = 5,

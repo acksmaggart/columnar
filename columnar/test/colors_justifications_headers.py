@@ -22,7 +22,7 @@ data = [
 
 patterns = [
     ('Saturday.+', lambda text: style(text, fg='white', bg='blue')),
-    ('\d+km', lambda text: style(text, fg='cyan')),
+    (r'\d+km', lambda text: style(text, fg='cyan')),
     ('Omloop Het Nieuwsblad', lambda text: style(text, fg='green')),
     ('Strade Bianche', lambda text: style(text, fg='white')),
     ('Milan-San Remo', lambda text: style(text, fg='red')),
