@@ -42,6 +42,7 @@ class Columnar:
         select: Sequence[str] = [],
         no_borders: bool = False,
         terminal_width: Union[None, int] = None,
+        preformatted_headers: bool = False,
     ) -> str:
         self.wrap_max = wrap_max
         self.max_column_width = max_column_width
@@ -72,7 +73,8 @@ class Columnar:
             self.column_sep = " " * 2
             self.row_sep = ""
             self.header_sep = ""
-            headers = [text.upper() for text in headers]
+            if not preformatted_headers:
+                headers = [text.upper() for text in headers]
 
         data = self.clean_data(data)
         data, headers = self.filter_columns(data, headers)

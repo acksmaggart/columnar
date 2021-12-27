@@ -54,6 +54,8 @@ print(table)
 
 ![Table Displaying No-border Style](https://github.com/MaxTaggart/columnar/raw/master/columnar/images/example_no_borders.png)
 
+> Note that when using the `no_borders` argument the headers will be capitalized by default. This can be disabled by passing `preformatted_headers=True`.
+
 Columnar also supports emojis and characters that take up two display columns (assuming your display knows what to do with them):
 
 ``` python
@@ -185,3 +187,8 @@ Specifies the character, or string, used to draw borders between the columns.
 
 ### `terminal_width=None`
 Specifies the width of the output display. If left as `None` the width will default to `shutil.get_terminal_size().columns`. However, for cases where the default does not give a desirable result the display width can be specified here.
+***
+
+### `preformatted_headers=False`
+Controls header formatting when `no_borders==True`. The default, `False`, will cause the headers to be automatically capitalized. `True` will use the headers as provided without any modification.
+
