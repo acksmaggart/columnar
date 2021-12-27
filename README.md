@@ -6,6 +6,7 @@ A library for creating columnar output strings using data as input.
 ```
 pip install columnar
 ```
+> Please note that `Columnar` is only compatible with python 3.6+ due to its use of `f""` strings.
 
 ## Examples
 ```python

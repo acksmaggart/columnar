@@ -13,4 +13,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 **[1.4.0] 2021-12-27**
 - Added
   - A changelog.
-  - A new boolean argument called `preformatted_headers` which, when `no_borders==True` will use the headers as-provided, rather than captializing the headers.
+  - A new boolean argument called `preformatted_headers` which, when `no_borders==True` will use the headers as-provided, rather than captializing the headers. (Thanks to @volitank!)
