@@ -101,7 +101,8 @@ class Columnar:
         table_width = sum(column_widths) + ((len(column_widths) + 1) * len(row_sep))
         out = io.StringIO()
         write_header = True if not self.no_headers else False
-        self.write_row_separators(out, column_widths)
+        if not self.no_borders:
+            self.write_row_separators(out, column_widths)
         for lrow, color_row in zip(truncated_rows, self.color_grid):
             for row in lrow:
                 justified_row_parts = [
@@ -115,14 +116,14 @@ class Columnar:
                     for text, code in zip(justified_row_parts, color_row)
                 ]
                 out.write(
-                    self.column_sep
+                    (self.column_sep if not self.no_borders else "")
                     + self.column_sep.join(colorized_row_parts)
                     + self.column_sep
                     + "\n"
                 )
             if write_header:
                 out.write(
-                    self.column_sep
+                    (self.column_sep if not self.no_borders else "")
                     + (self.header_sep * (table_width - (len(self.column_sep * 2))))
                     + self.column_sep
                     + "\n"
